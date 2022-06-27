@@ -1,613 +1,558 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<stdlib.h>
-#include<time.h>
-
-struct Account
+#include<string.h>
+#define N 1000
+#include<conio.h>
+struct chuhu
 {
-	char name[100];//姓名
-	char tel[12];//电话
-	char idCard[19];//身份证
-	char username[20];//银行账号卡号
-	char password[7];//密码
-	float money;//余额
-
-	struct Account * next; //下一个账户结点的地址
-};
-typedef struct Account Account;
-
-Account * head=NULL;//指向头结点的头指针
-Account * tail=NULL;//指向尾结点的尾指针
-Account *curAccount=NULL;//记录当前账户
-Account * otherAccount=NULL;//记录对方账户
-
-struct Transaction
-{
-	char username[100];
-	time_t timestamp;
-	int type;//0-取款，1-存款
-	int amount;
-
-	struct Transaction * next;
-};
-typedef struct Transaction Transaction;
-
-//交易记录信息链表
-Transaction * tHead=NULL;
-Transaction * tTail=NULL;
-
-//找到返回1，否则返回0
-
-void signIn()
-{
-	for(int i=0;i<3;i++)
-	{
-		Account a;
-		printf("请输入账号：");
-		scanf("%s",a.username);
-
-		printf("请输入密码：");
-		scanf("%s",a.password);
-
-		if(findAccount(a))
-		{
-			printf("登录成功！\n");
-			updatePassword();
-		}
-		else
-		{
-			printf("登录失败！\n");break;
-		}
-	}
-}
-
-void updatePassword()
-{
-	printf("请输入旧密码：\n");
-	char oldPassword[100];
-	scanf("%s",oldPassword);
-	if(strcmp(oldPassword,curAccount->password)==0)
-	{
-		printf("请输入新密码：");
-		scanf("%s",curAccount->password);
-		printf("修改成功！\n");
-	}
-	else
-	{
-		printf("密码错误！不能修改！\n");
-	}
-	curAccount->next=NULL;
-}
-
-
-
-//加载成功返回1，否则返回0
-int loadData()
-{
-	FILE* fp=fopen("D:/atm.txt","r");
-	if(fp==NULL)
-	{
-		return 0;
-	}
-	else
-	{
-		while(!feof(fp))
-		{
-			//创建结点
-			Account * newNode=(Account *)malloc(sizeof(Account));
-
-			//结点初始化
-			newNode->next=NULL;
-			fscanf(fp,"%s %s\n",newNode->username,newNode->password);
-
-			//添加结点到链表
-			if(head==NULL)
-			{
-				head=newNode;
-				tail=newNode;
-			}
-			else
-			{
-				tail->next=newNode;
-				tail=newNode;
-			}
-		}
-		return 1;
-	}
-}
-
-int findAccount(Account a)
-{
-	Account * curP=head;
-	while(curP!=NULL)
-	{
-		if((strcmp(curP->username,a.username)==0)&&(strcmp(curP->password,a.password)==0))
-		{
-			curAccount=curP;
-			return 1;
-		}
-	}
-	return 0;
-}
-
-//根据卡号查找对方账户，找到返回1，找不到返回0
-int findOtherAccount(char otherUsername[])
-{
-	Account * curp=head;
-	while(curp!=NULL)
-	{
-		if(strcmp(curp->username,otherUsername)==0)
-		{
-			otherAccount = curp;
-			return 1;
-		}
-		curp=curp->next;
-	}
-	return 0;
-}
-
-void saveData()
-{
-	FILE* fp=fopen("D:/atm.txt","w");
-	if(fp!=NULL)
-	{
-		Account * curP=head;
-		while(curP!=NULL)
-		{
-			fprintf(fp,"%s\t%s\n",curP->username,curP->password);
-			curP=curP->next;
-		}
-		fclose(fp);
-	}
-}
-
-void showMenuEnglish()
-{
-    while(1)
-	{
-		system("cls");
-		printf("\t\t\t   ---欢迎使用ATM机!---\n");
-		printf("\t\t\t   #   press 1，开户\n");
-		printf("\t\t\t   #   press 2，登录\n");
-		printf("\t\t\t   #   press 3，存款\n");
-		printf("\t\t\t   #   press 4, 取款\n");
-		printf("\t\t\t   #   press 5, 转账\n");
-		printf("\t\t\t   #   press 6, 退出\n");
-		int n;
-		scanf("%d",&n);
-		if(n==1)
-		{
-			signUpEnglish();
-		}
-		else if(n==2)
-		{
-			signInEnglish();
-		}
-
-		else if(n==3)
-        {
-            drawMoney();
-        }
-        else if(n==4)
-        {
-            saveMoney();
-        }
-        else if(n==5)
-        {
-            transfer();
-        }
-        else if(n==6)
-		{
-		    exit(0);
-		}
-
-	}
-}
-
-void signUpEnglish()
-{
-	//申请一块堆内存空间，将其地址赋值给指针newNodeP（不理解局部变量和全局变量的同学们观看群里的视频C语言内存分配）
-	Account * newNodeP=(Account *)malloc(sizeof(Account));
-	printf("请输入姓名：\n");
-	scanf("%s",newNodeP->name);
-
-	printf("请输入电话：\n");
-	scanf("%s",newNodeP->tel);
-
-	printf("请输入身份证：\n");
-	scanf("%s",newNodeP->idCard);
-
-	printf("请输入账号：\n");
-	scanf("%s",newNodeP->username); //账号应该是有银行给的，应该是系统生成的，思考怎么做？
-
-	printf("请输入密码：\n");
-	scanf("%s",newNodeP->password);
-
-	newNodeP->money=0.0f;
-	newNodeP->next=NULL;
-
-	//添加结点到链表中
-	if(head==NULL)
-	{
-		head=newNodeP;
-		tail=newNodeP;
-	}
-	else
-	{
-		tail->next=newNodeP;
-		tail=newNodeP;
-	}
-
-	printf("添加成功\n");
-	system("pause");
-}
-
-void signInEnglish()
-{
-    for(int i=0;i<3;i++)
-	{
-		Account a;
-		printf("请输入账号：");
-		scanf("%s",a.username);
-
-		printf("请输入密码：");
-		scanf("%s",a.password);
-
-		if(findAccount(a))
-		{
-			printf("登录成功！\n");
-			updatePassword();
-			break;
-		}
-		else
-		{
-			printf("登录失败！\n");
-		}
-	}
-}
-
-void signOut()
-{
-	exit(0);
-}
-
-void drawMoney()
-{
-
-	printf("请输入取款金额：");
-	int money;
-	scanf("%d",&money);
-
-	//验证金额
-	if(curAccount->money>=money)
-	{
-		printf("取款成功！\n");
-		curAccount->money-=money;
-
-		//产生交易记录...
-
-		//创建结点
-		Transaction * newNode=(Transaction*)malloc(sizeof(Transaction));
-
-		//结点初始化
-		newNode->next=NULL;
-		strcpy(newNode->username,curAccount->username);
-		newNode->timestamp=time(NULL);
-		newNode->type=0;
-		newNode->amount=money;
-
-		//添加结点到链表
-		if(tHead==NULL)
-		{
-			tHead=newNode;
-			tTail=newNode;
-		}
-		else
-		{
-			tTail->next=newNode;
-			tTail=newNode;
-		}
-	}
-	else
-	{
-		printf("余额不足！\n");
-	}
-}
-
-void saveMoney()
-{
-	printf("请输入存款金额：");
-	int money;
-	scanf("%d",&money);
-	printf("存款成功！\n");
-	curAccount->money+=money;
-
-	//产生交易记录...
-}
-
-void transfer()
-{
-	printf("请输入对方账户：");
-	char otherUsername[100];
-	scanf("%s",otherUsername);
-
-	//判断账户合法性
-	if(findOtherAccount(otherUsername))
-	{
-		printf("请输入转账金额：");
-		int money;
-		scanf("%d",&money);
-
-		//判断金额的合法性
-		if(curAccount->money>=money)
-		{
-			//转账（当前账户余额减少，对方账户余额增多）
-			curAccount->money -= money;
-			otherAccount->money += money;
-			printf("转账成功!\n");
-
-			//交易记录...Write your code here...
-
-		}
-		else
-		{
-			printf("余额不足！\n");
-		}
-	}
-	else
-	{
-		printf("账户不存在\n");
-	}
-}
-
-void showMenuChinese1()
-{
-    while(1)
-    {
-        system("cls");
-        printf("\t\t\t                       \n");
-        printf("\t\t\t   ---欢迎使用ATM机!---\n");
-		printf("\t\t\t   #   输入 1，开户    \n");
-		printf("\t\t\t   #   输入 2，登录    \n");
-		int s;
-		scanf("%d",&s);
-		if(s==1)
-		{
-			signUpChinese();
-		}
-		else if(s==2)
-		{
-			signInChinese();
-			showMenuChinese2();
-		}
-    }
-
-}
-
-//用户界面
-void showMenuChinese2()
-{
-    while(2)
-	{
-		system("cls");
-		printf("\t\t\t   ---欢迎使用ATM机!---\n");
-		printf("\t\t\t   #   输入 1，存款\n");
-		printf("\t\t\t   #   输入 2, 取款\n");
-		printf("\t\t\t   #   输入 3, 转账\n");
-		printf("\t\t\t   #   输入 4, 退出\n");
-		int n;
-		scanf("%d",&n);
-		if(n==1)
-        {
-            drawMoney();
-        }
-        else if(n==2)
-        {
-            saveMoney();
-        }
-        else if(n==3)
-        {
-            transfer();
-        }
-        else if(n==4)
-		{
-		    exit(0);
-		}
-
-	}
-}
-
-void signUpChinese()
-{
-	//申请一块堆内存空间，将其地址赋值给指针newNodeP（不理解局部变量和全局变量的同学们观看群里的视频C语言内存分配）
-	Account * newNodeP=(Account *)malloc(sizeof(Account));
-	printf("请输入姓名：\n");
-	scanf("%s",newNodeP->name);
-
-	printf("请输入电话：\n");
-	scanf("%s",newNodeP->tel);
-
-	printf("请输入身份证：\n");
-	scanf("%s",newNodeP->idCard);
-
-	printf("请输入账号：\n");
-	scanf("%s",newNodeP->username); //账号应该是有银行给的，应该是系统生成的，思考怎么做？
-
-	printf("请输入密码：\n");
-	scanf("%s",newNodeP->password);
-
-	newNodeP->money=0.0f;
-	newNodeP->next=NULL;
-
-	//添加结点到链表中
-	if(head==NULL)
-	{
-		head=newNodeP;
-		tail=newNodeP;
-	}
-	else
-	{
-		tail->next=newNodeP;
-		tail=newNodeP;
-	}
-
-	printf("添加成功\n");
-	system("pause");
-}
-
-void signInChinese()
-{
-    for(int i=0;i<3;i++)
-	{
-		Account a;
-		printf("请输入账号：");
-		scanf("%s",a.username);
-
-		printf("请输入密码：");
-		scanf("%s",a.password);
-
-		if(findAccount(a))
-		{
-			printf("登录成功！\n");
-			updatePassword();
-			break;
-		}
-		else
-		{
-			printf("登录失败！\n");
-		}
-	}
-}
-
-void signout()
-{
-	exit(0);
-}
-
-void drawmoney()
-{
-
-	printf("请输入取款金额：");
-	int money;
-	scanf("%d",&money);
-
-	//验证金额
-	if(curAccount->money>=money)
-	{
-		printf("取款成功！\n");
-		curAccount->money-=money;
-
-		//产生交易记录...
-
-		//创建结点
-		Transaction * newNode=(Transaction*)malloc(sizeof(Transaction));
-
-		//结点初始化
-		newNode->next=NULL;
-		strcpy(newNode->username,curAccount->username);
-		newNode->timestamp=time(NULL);
-		newNode->type=0;
-		newNode->amount=money;
-
-		//添加结点到链表
-		if(tHead==NULL)
-		{
-			tHead=newNode;
-			tTail=newNode;
-		}
-		else
-		{
-			tTail->next=newNode;
-			tTail=newNode;
-		}
-	}
-	else
-	{
-		printf("余额不足！\n");
-	}
-}
-
-void savemoney()
-{
-	printf("请输入存款金额：");
-	int money;
-	scanf("%d",&money);
-	printf("存款成功！\n");
-	curAccount->money+=money;
-
-	//产生交易记录...
-}
-
-void transform()
-{
-	printf("请输入对方账户：");
-	char otherUsername[100];
-	scanf("%s",otherUsername);
-
-	//判断账户合法性
-	if(findOtherAccount(otherUsername))
-	{
-		printf("请输入转账金额：");
-		int money;
-		scanf("%d",&money);
-
-		//判断金额的合法性
-		if(curAccount->money>=money)
-		{
-			//转账（当前账户余额减少，对方账户余额增多）
-			curAccount->money -= money;
-			otherAccount->money += money;
-			printf("转账成功!\n");
-
-			//交易记录...Write your code here...
-
-		}
-		else
-		{
-			printf("余额不足！\n");
-		}
-	}
-	else
-	{
-		printf("账户不存在\n");
-	}
-}
-
+	char idnum[9];//账户
+	char name[10];//姓名
+   char password[7];//密码
+   double cunkuan;//存款
+
+   struct chuhu * next;
+}  hu[N];
+
+typedef struct chuhu chuhu;
+chuhu * head=NULL;//指向头结点的头指针
+chuhu * tail=NULL;//指向尾结点的尾指针
+chuhu *curAccount=NULL;//记录当前账户
+
+void date();//显示当前日期
+int a,a1;//主界面选择变量
+void Flag1();//主界面
+void Flag2();//用户界面
+void Flag3();//用户功能选择界面
+void zhuce();//注册
+int yanzheng();//验证存单号或密码
+void qukaun();//取款
+void cunkaun();//存款
+void display();//查询
+void zhuan();//转账
+void xiugai();//密码修改
+void display();//查找
+ int A,key;//开户人数
+ int i;//控制密码循环
+ char ch='y';//是否继续注册
+ double jin;//存的钱
+ int t;
+
+ char id[11],password[7];
 
 int main()
 {
-    printf("\t\t               $ 父爱银行 $                \n");
-    printf("\t\t                                           \n");
-    printf("\t\t        (The bank with father's love)      \n");
-    printf("\t\t                                           \n");
-	printf("\t\t   Please press 1 , Choose English Service!\n");
-	printf("\t\t                                           \n");
-	printf("\t\t            选择中文服务请按2！            \n");
-	int language;
-	scanf("%d",&language);
-	if(language==2)
+system("COLOR 0A"); int b;
+	Flag1();//引入主界面
+	do
+    {
+	printf("\n\n\t\t##请输入你的选择：");
+	scanf("%d",&a);
+	switch(a)
 	{
-		showMenuChinese1(); //显示中文菜单
-	}
-	else if(language==1)
-	{
-		showMenuEnglish(); //显示英文菜单
+		case 1:
+        {
+			zhuce();//zhuce
+			Flag1();
+			break;
+		}
+		case 2:
+        {
+			b=yanzheng();
+			fflush(stdin);///好东西，以防跳过数据
+			Flag2();
+			break;
+		}
+		case 3:exit(0);break;
+		default:printf("\n\n\n\t\t您输入的数据不符合要求!!!\n\n\n\n\n");
+
 	}
 
-	signIn();
-	loadData();
-	int status=loadData();//加载账户信息
-	//loadTransaction();//加载交易记录信息
+	}while(1);
+}
 
-	if(status==1)
+
+void Flag1()
+{
+    printf("                                        \n");
+    printf("\t\t      ---- 银行定期储蓄管理系统 ----    \n");
+	printf("\t\t                                    \n");
+	printf("\t\t          ☆ 开户业务    请按 1     \n");
+	printf("\t\t          ☆ 登录系统    请按 2     \n");
+	printf("\t\t          ☆ 退出        请按 3     \n");
+	printf("\t\t                                    \n");
+
+}
+//********************************************************************************************************************
+
+//用户界面
+void Flag2()
+{
+       int a,b;//选择功能的变量
+	   do
+       {
+	   	printf("\n\n按ENTER键进入、返回用户界面 " ) ;
+	   	fflush(stdin);
+	   	scanf("%c",&ch);
+	   	system("cls");//清屏
+		   date();
+    printf("\t               ---- 欢迎使用 ----         \n");
+	printf("\t             ☆ 存款业务     请按 1       \n");
+	printf("\t             ☆ 取款业务     请按 2       \n");
+	printf("\t             ☆ 查询业务     请按 3       \n");
+	printf("\t             ☆ 转账业务     请按 4       \n");
+	printf("\t             ☆ 修改密码     请按 5       \n");
+	printf("\t             ☆ 退出系统     请按 6       \n");
+	printf("\t                                          \n");
+	printf("\n\n\t\t 请输入你的选择：");
+	fflush(stdin);
+	scanf("%d",&a);
+	switch(a)
+	{//注册
+		case 1: { system("cls");fflush(stdin);cunkaun();break;//存款
+
+		}
+		case 2:  {system("cls");fflush(stdin);qukaun();break;//取款
+
+		}
+		case 3: {display();//查询业务
+			break;
+		}
+		case 4:{system("cls");fflush(stdin);zhuan();break;//转账
+
+		}
+		case 5: {system("cls");fflush(stdin);xiugai();break;//密码修改
+
+		}
+		case 6: exit(0);
+		default:printf("您输入的选择有误，请输入正确的选项：");
+
+	}
+      } while(1);
+}
+//********************************************************************************************************************
+//用户功能选择界面
+void Flag3(){
+	printf("\n\n\t\t##请输入你的选择：");
+	scanf("%d",&a1);
+	switch(a1){
+		case 1:printf("存款业务");break;
+		case 2:printf("取款业务");break;
+		case 3:printf("查询业务");break;
+		case 4:printf("转账业务");break;
+		case 5:printf("密码修改");break;
+		case 6:printf("退出");break;
+	}
+}
+//********************************************************************************************************************
+//开户
+void zhuce(){
+	//申请一块堆内存空间，将其地址赋值给指针newNodeP（不理解局部变量和全局变量的同学们观看群里的视频C语言内存分配）
+    chuhu* newNodeP=(chuhu *)malloc(sizeof(chuhu));
+
+	printf("请输入账号：\n");
+	scanf("%s",newNodeP->idnum); //账号应该是有银行给的，应该是系统生成的，思考怎么做？
+
+	printf("请输入姓名：\n");
+	scanf("%s",newNodeP->name);
+
+	printf("请输入密码：\n");
+	scanf("%s",newNodeP->password);
+
+	newNodeP->cunkuan=0.0f;
+	newNodeP->next=NULL;
+
+	//添加结点到链表中
+	if(head==NULL)
 	{
-		printf("加载成功！\n");
+		head=newNodeP;
+		tail=newNodeP;
 	}
 	else
 	{
-		printf("加载失败！\n");
+		tail->next=newNodeP;
+		tail=newNodeP;
 	}
-	saveData();
+
+	printf("添加成功\n");
+	system("pause");
+}
+
+//********************************************************************************************************************
+//验证存单号或密码
+int yanzheng(){
+	FILE *fchuhu=fopen("chuh.txt","r");
+		system("cls");
+        printf("\t\t                                          \n");
+        printf("\t\t      ☆  账号或者密码有误则自动返回！  ☆\n");
+        printf("\t\t                                          \n");
+		for(i=0;i<3;i++){
+            chuhu a;
+            printf("请输入账号：");
+		    scanf("%s",a.idnum);
+		    printf("请输入密码：");
+		    scanf("%s",a.password);
+
+		    if(findchuhu(a)){
+		       printf("登录成功！\n");
+            }
+            else{
+			printf("登录失败！\n");break;
+		    }
+		}
+	}
+
+int findchuhu(chuhu a)
+{
+	chuhu * curP=head;
+	while(curP!=NULL)
+	{
+		if((strcmp(curP->idnum,a.idnum)==0)&&(strcmp(curP->password,a.password)==0))
+		{
+
+			return 1;
+		}
+	}
 	return 0;
 }
 
+//********************************************************************************************************************
+//********************************************************************************************************************
+//存款
+void cunkaun(){
+	FILE *fchuhu=fopen("chuh.txt","r");
+	FILE *achuhu=fopen("back.txt","w");
+	char id[9];int i;
+	if(!fchuhu) printf("不能打开文件：");
+	if(!achuhu) printf("不能创建文件");
+	for(i=0;i<=100;i++){
+	fscanf(fchuhu,"%s\t%s\t%s\t%lf\n",&hu[i].idnum,&hu[i].name,&hu[i].password,&hu[i].cunkuan);
+	}	//
+	int x=0;
+		date();
+		printf("\n\n\t\t##请再次输入并确认账号：");
+		scanf("%s",&id);
+		for(i=0;i<=100;i++){
+			if(strcmp(id,hu[i].idnum)==0){
+		   printf("\n\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\t\t||                           *存款金额*                           ||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||         1、200        2、400        3、600        4、800       ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	    	printf("\t\t||         5、1000        6、2000        7、4000        8、6000   ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\n\n\t\t\t请输入你的取款金额：");
+	 		scanf("%d",&a);
+	 		switch(a){
+	 			case 1:{jin=200;
+	 				 printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 2:{jin=400;
+	 			    printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+				    fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 3:{
+				 	jin=600;
+				 	 printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 4:{
+				 		jin=800;
+				  printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 	 			case 5:{jin=1000;
+	 			 printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 6:{jin=2000;
+	 			 printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+				    fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 7:{
+				 	jin=4000;
+				  printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 8:{
+				 		jin=6000;
+				 	 printf("\t\t\t存款%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^存款成功^^^^");
+			    	hu[i].cunkuan+=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 default:printf("\n\n\n\t\t\t您的选择金额不在服务范围内！！！\n\n\n\t\t\t请重新选择业务：");
+
+			 }
+				fclose(fchuhu);
+	            fclose(achuhu);
+            	system("del chuh.txt");
+              	rename("back.txt","chuh.txt");//rename(旧的，新的）
+                break;
+				}
+				}
+			}
+
+//*******************************************************************************************************************
+//取款
+void qukaun(){
+	FILE *fchuhu=fopen("chuh.txt","r");
+	FILE *achuhu=fopen("back.txt","w");
+	int i;
+	char id[9];
+	if(!fchuhu) printf("不能打开文件：");
+	if(!achuhu) printf("不能创建新文件：");
+	for(i=0;i<=100;i++){
+	fscanf(fchuhu,"%s\t%s\t%s\t%lf\n",&hu[i].idnum,&hu[i].name,&hu[i].password,&hu[i].cunkuan);
+	}
+
+	 	date();
+	 	printf("\n\n\t\t请再次输入并确认账号：");
+	 	scanf("%s",&id);
+	 	for(i=0;i<=99;i++){
+	 		if(strcmp(id,hu[i].idnum)==0){
+	 	    printf("\n\n");
+	     	printf("\t\t||================================================================||\n");
+	 		printf("\t\t||                           *取款金额*                           ||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||         1、200        2、400        3、600        4、800       ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	    	printf("\t\t||         5、1000        6、2000        7、4000        8、6000   ||\n");
+	 		printf("\t\t||                                                                ||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\t\t||================================================================||\n");
+	 		printf("\n\n\t\t\t请输入你的取款金额：");
+	 		scanf("%d",&a);
+	 		switch(a){
+	 			case 1:{jin=200;
+	 				printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 2:{jin=400;
+	 				printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+				    fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 3:{
+				 	jin=600;
+				 printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 4:{
+				 		jin=800;
+				 printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 	 			case 5:{jin=1000;
+	 				printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 6:{jin=2000;
+	 			printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+				    fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 7:{
+				 	jin=4000;
+				 printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 case 8:{
+				 		jin=6000;
+				 printf("\t\t\t取出%lf元",jin);
+			     	printf("\n\n\n\t\t\t^^^^取款成功^^^^");
+			    	hu[i].cunkuan-=jin;
+			    	printf("\n\n\t\t\t$您的余额为：%lf",hu[i].cunkuan);
+			    	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+					break;
+				 }
+				 default:printf("\n\n\n\t\t\t您的选择金额不在服务范围内！！！\n\n\n\t\t\t请重新选择业务：");
+
+			 }
+				fclose(fchuhu);
+     	        fclose(achuhu);
+             	system("del chuh.txt");
+             	rename("back.txt","chuh.txt");
+				break;
+			 }
+
+		 }
+
+}
+//********************************************************************************************************************
+//转账
+void zhuan(){
+	FILE *fchuhu=fopen("chuh.txt","r+");
+	int i;
+	char id[9];
+	if(!fchuhu) printf("不能打开文件：");
+
+	for(i=0;i<=100;i++){
+	fscanf(fchuhu,"%s\t%s\t%s\t%lf\n",&hu[i].idnum,&hu[i].name,&hu[i].password,&hu[i].cunkuan);
+	}
+
+	 	date();
+	 	printf("\n\n\t\t请输入转账人的账号：");
+	 	scanf("%s",&id);
+	 	for(i=0;i<=99;i++){
+	 		if(strcmp(id,hu[i].idnum)==0){
+	 	      printf("\n\n\t\t请输入要转账的金额：");
+			   scanf("%lf",&jin);
+			   printf("\n\n\t\t请确认数目：%lf",jin);
+				 hu[i].cunkuan+=jin;
+				 printf("\n\n\n转账成功");
+				 	fprintf(fchuhu,"%s\t%s\t%s\t%lf\n",hu[A].idnum,hu[A].name,hu[A].password,hu[A].cunkuan);
+				 		fclose(fchuhu);
+	fclose(fchuhu);
+
+				 break;
+			 }
+
+		 }
+
+
+}
+//********************************************************************************************************************
+
+//********************************************************************************************************************
+void xiugai(){
+	FILE *fchuhu=fopen("chuh.txt","r");
+	FILE *achuhu=fopen("back.txt","w");
+	int j,i;
+	char id[9];
+	if(!fchuhu) printf("不能打开文件：");
+	if(!achuhu) printf("不能创建新文件：");
+	for(i=0;i<=100;i++){
+	fscanf(fchuhu,"%s\t%s\t%s\t%lf\n",&hu[i].idnum,&hu[i].name,&hu[i].password,&hu[i].cunkuan);
+	}
+
+	 	date();
+	 	printf("\n\n\t\t请再次输入并确认账号：");
+	 	scanf("%s",&id);
+	 	for(i=0;i<=99;i++){
+	 		if(strcmp(id,hu[i].idnum)==0){
+	 		printf("请输入新的密码：\n");
+	 			printf("\n\t\t储户密码（6位）：");
+	for(j=0;j<6;j++){
+		fflush(stdin);
+		hu[i].password[j]=getch();
+		printf("*");
+
+	}
+				 printf("\n\n\t\t新的密码：%s\n",hu[i].password);
+
+				 printf("\n\n\t\t修改成功");
+				 	fprintf(achuhu,"%s\t%s\t%s\t%lf\n",hu[A].idnum,hu[A].name,hu[A].password,hu[A].cunkuan);
+				 		fclose(fchuhu);
+	fclose(achuhu);
+	system("del chuh.txt");
+	rename("back.txt","chuh.txt");
+				 break;
+			 }
+
+		 }
+
+}
+//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+//查询信息
+void display(){
+	FILE *fchuhu=fopen("chuh.txt","r");
+	int i,n=0;
+	char fnumb[9];
+	system("cls");
+	for(i=0;i<=100;i++){
+			fscanf(fchuhu,"%s\t%s\t%s\t%lf\n",&hu[i].idnum,&hu[i].name,&hu[i].password,&hu[i].cunkuan);
+	}
+
+	printf("\n\n\n\t\t\t\t\t请输入你的账号：");
+	scanf("%s",&fnumb);
+	printf("\n\n\n");
+	printf("\t\t\t\t\t您的个人信息如下：");
+	printf("\n\n");
+	for(i=0;i<=99;i++)
+		if(strcmp(fnumb,hu[i].idnum)==0){
+				printf("账号：%s\t姓名：%s\t密码：%s\t存款金额：%lf\n",hu[i].idnum,hu[i].name,hu[i].password,hu[i].cunkuan);
+				n=1;
+				fclose(fchuhu);
+				system("pause");
+	            break;
+		}
+if(n==0) printf("此账号不存在！！！\n");
+fclose(fchuhu);
+
+}
+
+//********************************************************************************************************************
+void date(){//显示当前日期
+   printf("当前日期：");
+   system("date/t");
+   printf("当前时间：");
+   system("time/t");
+
+
+}
